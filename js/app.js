@@ -17,22 +17,22 @@ document.addEventListener('DOMContentLoaded', () => {
         loginForm.classList.remove('hidden');
     });
 
-    // Chart.js Setup
+    // Chart.js Setup (Start Completely Empty)
     const ctx = document.getElementById('financeChart').getContext('2d');
     let financeChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: [], // Empty labels
             datasets: [
                 {
                     label: 'PayHere Payouts (Profit)',
-                    data: [120, 190, 300, 500, 200, 300, 450],
+                    data: [], // Empty data
                     borderColor: '#10b981',
                     tension: 0.4
                 },
                 {
                     label: 'Mom Withdrawals (Loss)',
-                    data: [0, 50, 0, 200, 0, 100, 0],
+                    data: [], // Empty data
                     borderColor: '#ef4444',
                     tension: 0.4
                 }
