@@ -1,6 +1,6 @@
 import { app, auth } from './auth.js';
 import { 
-    getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp 
+    getFirestore, collection, addDoc, onSnapshot, query, where, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -44,10 +44,10 @@ document.getElementById('add-withdrawal-btn').addEventListener('click', () => {
 // --- 2. FETCH DATA IN REAL-TIME ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        // FIXED: Removed orderBy to bypass the strict Firebase Index error
         const q = query(
             collection(db, "transactions"), 
-            where("uid", "==", user.uid),
-            orderBy("createdAt", "asc")
+            where("uid", "==", user.uid)
         );
 
         // Fetch everything, format dates, and shoot off to app.js for rendering
@@ -62,10 +62,15 @@ onAuthStateChanged(auth, (user) => {
                 };
             });
 
-            // Send full array to app.js to map cleanly (Solves infinite loop bug)
+            // FIXED: Sort transactions chronologically on the frontend instead of the backend
+            allTransactions.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+
+            // Send full array to app.js to map cleanly
             window.dispatchEvent(new CustomEvent('rawFinanceData', {
                 detail: allTransactions
             }));
+        }, (error) => {
+            console.error("Snapshot error:", error);
         });
     } else {
         if (unsubscribe) unsubscribe();
