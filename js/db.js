@@ -1,110 +1,75 @@
 import { app, auth } from './auth.js';
 import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    onSnapshot, 
-    query, 
-    where, 
-    orderBy, 
-    serverTimestamp 
+    getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Initialize the database
 const db = getFirestore(app);
-let unsubscribe = null; // Used to stop listening to data when logged out
+let unsubscribe = null; 
 
-// --- 1. ADD DATA TO FIRESTORE ---
-async function addTransaction(type, amount) {
+// --- 1. ADD DATA ---
+async function addTransaction(type, amount, currency) {
     if (!auth.currentUser) return alert("Please log in to save data!");
     
     try {
         await addDoc(collection(db, "transactions"), {
             uid: auth.currentUser.uid,
-            type: type, // 'profit' (PayHere) or 'loss' (Mom)
+            type: type, // 'profit' or 'loss'
+            currency: currency, // 'LKR' or 'USD'
             amount: parseFloat(amount),
             createdAt: serverTimestamp()
         });
-        console.log("Transaction successfully saved!");
+        console.log("Transaction saved!");
     } catch (error) {
-        console.error("Error adding transaction: ", error);
         alert("Failed to save transaction.");
     }
 }
 
-// Button Listeners for adding entries
+// Button Listeners mapped to respective Currencies
 document.getElementById('add-payhere-btn').addEventListener('click', () => {
-    // Using a prompt for simplicity; you can upgrade this to a nice HTML modal later
-    const amount = prompt("Enter new PayHere Payout Amount ($):");
-    if (amount && !isNaN(amount) && amount > 0) {
-        addTransaction('profit', amount);
-    }
+    const amount = prompt("Enter PayHere Payout Amount (Rs):");
+    if (amount && !isNaN(amount) && amount > 0) addTransaction('profit', amount, 'LKR');
+});
+
+document.getElementById('add-paypal-btn').addEventListener('click', () => {
+    const amount = prompt("Enter PayPal Payout Amount ($ USD):");
+    if (amount && !isNaN(amount) && amount > 0) addTransaction('profit', amount, 'USD');
 });
 
 document.getElementById('add-withdrawal-btn').addEventListener('click', () => {
-    const amount = prompt("Enter Withdrawal Amount to Mom's Account ($):");
-    if (amount && !isNaN(amount) && amount > 0) {
-        addTransaction('loss', amount);
-    }
+    const amount = prompt("Enter Withdrawal Amount to Mom's Account (Rs):");
+    if (amount && !isNaN(amount) && amount > 0) addTransaction('loss', amount, 'LKR');
 });
 
-// --- 2. READ DATA IN REAL-TIME ---
+// --- 2. FETCH DATA IN REAL-TIME ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Query to only get the logged-in user's transactions, sorted by time
         const q = query(
             collection(db, "transactions"), 
             where("uid", "==", user.uid),
             orderBy("createdAt", "asc")
         );
 
-        // onSnapshot constantly listens. If you add data on your phone, your PC updates instantly.
+        // Fetch everything, format dates, and shoot off to app.js for rendering
         unsubscribe = onSnapshot(q, (snapshot) => {
-            let totalProfit = 0;
-            let totalLoss = 0;
-            
-            // Arrays to hold data for the Chart
-            const chartLabels = [];
-            const profitData = [];
-            const lossData = [];
-
-            snapshot.forEach((doc) => {
+            const allTransactions = snapshot.docs.map(doc => {
                 const data = doc.data();
-                
-                // Calculate Totals
-                if (data.type === 'profit') {
-                    totalProfit += data.amount;
-                } else if (data.type === 'loss') {
-                    totalLoss += data.amount;
-                }
-                
-                // Format Data for the Graph
-                // If createdAt is pending (null), use the exact current time locally
-                const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
-                
-                chartLabels.push(`${dateObj.getMonth() + 1}/${dateObj.getDate()}`);
-                profitData.push(data.type === 'profit' ? data.amount : 0);
-                lossData.push(data.type === 'loss' ? data.amount : 0);
+                return {
+                    id: doc.id,
+                    ...data,
+                    // Fix pending server timestamps instantly
+                    dateObj: data.createdAt ? data.createdAt.toDate() : new Date() 
+                };
             });
 
-            // Update the Dashboard Cards
-            document.getElementById('total-profit').textContent = `$${totalProfit.toFixed(2)}`;
-            document.getElementById('total-loss').textContent = `$${totalLoss.toFixed(2)}`;
-            document.getElementById('net-balance').textContent = `$${(totalProfit - totalLoss).toFixed(2)}`;
-
-            // Broadcast the new data so app.js can catch it and draw the graph
-            window.dispatchEvent(new CustomEvent('financeDataUpdate', {
-                detail: { labels: chartLabels, profits: profitData, losses: lossData }
+            // Send full array to app.js to map cleanly (Solves infinite loop bug)
+            window.dispatchEvent(new CustomEvent('rawFinanceData', {
+                detail: allTransactions
             }));
         });
     } else {
-        // Stop listening to data when the user logs out
         if (unsubscribe) unsubscribe();
-        
-        // Reset dashboard text
-        document.getElementById('total-profit').textContent = "$0.00";
-        document.getElementById('total-loss').textContent = "$0.00";
-        document.getElementById('net-balance').textContent = "$0.00";
+        // Reset view if logged out
+        window.dispatchEvent(new CustomEvent('rawFinanceData', { detail: [] }));
     }
 });
