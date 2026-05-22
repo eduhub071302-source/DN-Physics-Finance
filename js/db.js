@@ -80,12 +80,12 @@ onAuthStateChanged(auth, (user) => {
                 }
                 
                 // Format Data for the Graph
-                if (data.createdAt) {
-                    const dateObj = data.createdAt.toDate();
-                    chartLabels.push(`${dateObj.getMonth() + 1}/${dateObj.getDate()}`);
-                    profitData.push(data.type === 'profit' ? data.amount : 0);
-                    lossData.push(data.type === 'loss' ? data.amount : 0);
-                }
+                // If createdAt is pending (null), use the exact current time locally
+                const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
+                
+                chartLabels.push(`${dateObj.getMonth() + 1}/${dateObj.getDate()}`);
+                profitData.push(data.type === 'profit' ? data.amount : 0);
+                lossData.push(data.type === 'loss' ? data.amount : 0);
             });
 
             // Update the Dashboard Cards
