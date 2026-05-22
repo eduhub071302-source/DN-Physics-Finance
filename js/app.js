@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => console.log('Service Worker Registered'))
             .catch(err => console.log('Service Worker Failed', err));
     }
-});|
+});
 
 // Listen for the custom event sent from db.js
 window.addEventListener('financeDataUpdate', (e) => {
