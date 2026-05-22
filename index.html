@@ -5,17 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DN Physics - Money Manager</title>
     
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <link rel="stylesheet" href="css/style.css">
     
-    <!-- Chart.js for Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-    <!-- AUTHENTICATION VIEW -->
     <div id="auth-container" class="container">
         <div class="auth-box">
             <h2>DN Physics Finance</h2>
@@ -40,7 +38,6 @@
         </div>
     </div>
 
-    <!-- DASHBOARD VIEW (Hidden by default) -->
     <div id="dashboard-container" class="container hidden">
         <header>
             <div class="profile-header">
@@ -50,31 +47,30 @@
             <button id="logout-btn" class="btn-outline">Logout</button>
         </header>
 
-        <main>
-            <!-- Balance Cards -->
+        <main id="dashboard-content">
             <div class="cards-grid">
                 <div class="card profit-card">
-                    <h3>Total PayHere Payouts</h3>
-                    <h2 id="total-profit">$0.00</h2>
+                    <h3>Profit</h3>
+                    <h2 id="total-profit">Rs. 0.00 <br><small>($ 0.00)</small></h2>
                 </div>
                 <div class="card loss-card">
-                    <h3>Mom's Account Withdrawals</h3>
-                    <h2 id="total-loss">$0.00</h2>
+                    <h3>Deductions</h3>
+                    <h2 id="total-loss">Rs. 0.00 <br><small>($ 0.00)</small></h2>
                 </div>
                 <div class="card net-card">
                     <h3>Net Balance</h3>
-                    <h2 id="net-balance">$0.00</h2>
+                    <h2 id="net-balance">Rs. 0.00 <br><small>($ 0.00)</small></h2>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="actions-grid">
-                <button id="add-payhere-btn" class="btn-success">+ Add PayHere Payout</button>
-                <button id="add-withdrawal-btn" class="btn-danger">- Record Withdrawal</button>
-                <button id="export-csv-btn" class="btn-outline">📥 Export CSV (Pro)</button>
+                <button id="add-payhere-btn" class="btn-success">+ PayHere Payout</button>
+                <button id="add-paypal-btn" class="btn-info">+ PayPal Payout</button>
+                <button id="add-withdrawal-btn" class="btn-danger">- Deduct Withdrawal</button>
+                <button id="summary-btn" class="btn-warning">📊 Summary</button>
+                <button id="export-pdf-btn" class="btn-outline">📤 Share / Export PDF</button>
             </div>
 
-            <!-- Graph Section -->
             <div class="chart-container card">
                 <div class="chart-header">
                     <h3>Cash Flow Chart</h3>
@@ -85,15 +81,39 @@
                         <button class="filter-btn" data-time="all">All Time</button>
                     </div>
                 </div>
-                <canvas id="financeChart"></canvas>
+                <div class="canvas-wrapper">
+                    <canvas id="financeChart"></canvas>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- Firebase SDKs (Module format for modern JS) -->
+    <div id="exchange-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Daily Exchange Rate</h3>
+            <p>What is the value of 1 USD in LKR today?</p>
+            <input type="number" id="exchange-rate-input" placeholder="e.g., 320">
+            <button id="save-rate-btn" class="btn-primary">Set Rate</button>
+        </div>
+    </div>
+
+    <div id="summary-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Financial Summary</h3>
+            <div class="tabs">
+                <button class="sum-tab active" data-range="7d">7 Days</button>
+                <button class="sum-tab" data-range="1m">1 Month</button>
+                <button class="sum-tab" data-range="1y">1 Year</button>
+                <button class="sum-tab" data-range="all">All Time</button>
+            </div>
+            <div id="summary-content" class="summary-details">
+                </div>
+            <button class="close-modal btn-outline" style="margin-top: 15px;">Close</button>
+        </div>
+    </div>
+
     <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/db.js"></script>
-    <!-- Main App Logic -->
     <script src="js/app.js"></script>
 </body>
 </html>
