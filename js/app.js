@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: [], 
             datasets: [
-                { label: 'Profit (PayHere + PayPal)', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3 },
+                // CHANGED: Graph label updated to Total Payouts
+                { label: 'Total Payouts (PayHere + PayPal)', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3 },
                 { label: 'Deductions (Withdrawals)', data: [], borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.3 }
             ]
         },
