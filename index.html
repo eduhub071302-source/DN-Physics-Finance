@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DN Physics - Money Manager</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Chart.js for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- AUTHENTICATION VIEW -->
+    <div id="auth-container" class="container">
+        <div class="auth-box">
+            <h2>DN Physics Finance</h2>
+            
+            <div id="login-form">
+                <button id="google-login-btn" class="btn-google">Continue with Google</button>
+                <div class="divider"><span>OR</span></div>
+                
+                <input type="email" id="email" placeholder="Email Address">
+                <input type="password" id="password" placeholder="Password">
+                <button id="email-login-btn" class="btn-primary">Login</button>
+                <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+            </div>
+
+            <div id="signup-form" class="hidden">
+                <input type="email" id="new-email" placeholder="Email Address">
+                <input type="password" id="new-password" placeholder="Create Password">
+                <input type="password" id="confirm-password" placeholder="Confirm Password">
+                <button id="email-signup-btn" class="btn-primary">Create Account</button>
+                <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW (Hidden by default) -->
+    <div id="dashboard-container" class="container hidden">
+        <header>
+            <div class="profile-header">
+                <h2>Dashboard</h2>
+                <span class="pro-badge">PRO</span>
+            </div>
+            <button id="logout-btn" class="btn-outline">Logout</button>
+        </header>
+
+        <main>
+            <!-- Balance Cards -->
+            <div class="cards-grid">
+                <div class="card profit-card">
+                    <h3>Total PayHere Payouts</h3>
+                    <h2 id="total-profit">$0.00</h2>
+                </div>
+                <div class="card loss-card">
+                    <h3>Mom's Account Withdrawals</h3>
+                    <h2 id="total-loss">$0.00</h2>
+                </div>
+                <div class="card net-card">
+                    <h3>Net Balance</h3>
+                    <h2 id="net-balance">$0.00</h2>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions-grid">
+                <button id="add-payhere-btn" class="btn-success">+ Add PayHere Payout</button>
+                <button id="add-withdrawal-btn" class="btn-danger">- Record Withdrawal</button>
+                <button id="export-csv-btn" class="btn-outline">📥 Export CSV (Pro)</button>
+            </div>
+
+            <!-- Graph Section -->
+            <div class="chart-container card">
+                <div class="chart-header">
+                    <h3>Cash Flow Chart</h3>
+                    <div class="chart-filters">
+                        <button class="filter-btn active" data-time="7d">7 Days</button>
+                        <button class="filter-btn" data-time="1m">1 Month</button>
+                        <button class="filter-btn" data-time="1y">1 Year</button>
+                        <button class="filter-btn" data-time="all">All Time</button>
+                    </div>
+                </div>
+                <canvas id="financeChart"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDKs (Module format for modern JS) -->
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/db.js"></script>
+    <!-- Main App Logic -->
+    <script src="js/app.js"></script>
+</body>
+</html>
